@@ -21,7 +21,7 @@ Bot dựa trên khuôn trợ lý Zalo "Phúc Bani" của BANI, đổi sang ngh�
 Đăng nhập VPS (qua SSH), dán lệnh này rồi Enter:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/blackmatrix2007/bot-zalo-cskh/main/cai.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/phucvantv896/bot-zalo-cskh/main/cai.sh | sudo bash
 ```
 
 Script sẽ hỏi lần lượt: tên shop, tên chủ shop, số hỗ trợ, chọn AI, dán khoá API, tên miền. Chờ 3–10 phút. Cuối cùng màn hình in ra **địa chỉ bảng điều khiển** và **mã đăng nhập**. Lưu kỹ mã này.

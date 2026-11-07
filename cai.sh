@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # cai.sh — Cài bot chăm sóc khách hàng Zalo lên VPS Ubuntu/Debian bằng MỘT lệnh:
-#   curl -fsSL https://raw.githubusercontent.com/blackmatrix2007/bot-zalo-cskh/main/cai.sh | sudo bash
+#   curl -fsSL https://raw.githubusercontent.com/phucvantv896/bot-zalo-cskh/main/cai.sh | sudo bash
 # Chạy lại lệnh này để CẬP NHẬT (giữ nguyên dữ liệu, đăng nhập Zalo và khoá AI).
 set -euo pipefail
 
-REPO="${REPO:-blackmatrix2007/bot-zalo-cskh}"
+REPO="${REPO:-phucvantv896/bot-zalo-cskh}"
 NHANH="${NHANH:-main}"
 THU_MUC="${THU_MUC:-/opt/bot-zalo}"
 

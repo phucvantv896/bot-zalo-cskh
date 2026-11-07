@@ -1,0 +1,77 @@
+# Bot Zalo CSKH — GoClaw (bản gốc công khai) + PostgreSQL có pgvector.
+# Không sửa tay file này. Mọi thông số nằm trong .env do cai.sh tạo.
+# Có tên miền (DOMAIN trong .env) thì chạy kèm Caddy để có HTTPS: docker compose --profile https up -d
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg18
+    environment:
+      POSTGRES_USER: goclaw
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?thiếu POSTGRES_PASSWORD trong .env}
+      POSTGRES_DB: goclaw
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U goclaw -d goclaw"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  goclaw:
+    image: ghcr.io/nextlevelbuilder/goclaw:${GOCLAW_IMAGE_TAG:-v3.14.0}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${GOCLAW_BIND:-0.0.0.0}:${GOCLAW_PORT:-18790}:18790"
+    environment:
+      - GOCLAW_HOST=0.0.0.0
+      - GOCLAW_PORT=18790
+      - GOCLAW_CONFIG=/app/data/config.json
+      - GOCLAW_GATEWAY_TOKEN=${GOCLAW_GATEWAY_TOKEN:?thiếu GOCLAW_GATEWAY_TOKEN trong .env}
+      - GOCLAW_ENCRYPTION_KEY=${GOCLAW_ENCRYPTION_KEY:?thiếu GOCLAW_ENCRYPTION_KEY trong .env}
+      - GOCLAW_POSTGRES_DSN=postgres://goclaw:${POSTGRES_PASSWORD}@postgres:5432/goclaw?sslmode=disable
+      - GOCLAW_AUTO_UPGRADE=true
+      - GOCLAW_SKILLS_DIR=/app/data/skills
+    volumes:
+      - goclaw-data:/app/data
+      - goclaw-workspace:/app/workspace
+    security_opt:
+      - no-new-privileges:true
+    init: true
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETUID
+      - SETGID
+      - CHOWN
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=256m
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          pids: 200
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2.8.4
+    profiles: ["https"]
+    depends_on:
+      - goclaw
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN:-}
+    command: caddy reverse-proxy --from ${DOMAIN:-localhost} --to goclaw:18790
+    volumes:
+      - caddy-data:/data
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  goclaw-data:
+  goclaw-workspace:
+  caddy-data:

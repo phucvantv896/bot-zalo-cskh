@@ -1,0 +1,18 @@
+{
+  "agent_key": "{{AGENT_KEY}}",
+  "display_name": "{{TEN_BOT}}",
+  "frontmatter": "Trợ lý chăm sóc khách hàng Zalo của shop mỹ phẩm {{TEN_SHOP}}: tư vấn theo loại da, báo giá, nhận đơn, giải đáp giao hàng và đổi trả.",
+  "provider": "{{PROVIDER}}",
+  "model": "{{MODEL}}",
+  "agent_type": "predefined",
+  "context_window": 200000,
+  "max_tool_iterations": 12,
+  "emoji": "🌸",
+  "tools_config": {
+    "profile": "messaging",
+    "deny": ["group:web", "sessions_send", "sessions_list", "sessions_history"]
+  },
+  "memory_config": { "enabled": false },
+  "context_pruning": { "mode": "off" },
+  "other_config": { "allow_image_generation": false }
+}

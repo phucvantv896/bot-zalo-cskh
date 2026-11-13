@@ -1,13 +1,13 @@
 {
   "agent_key": "{{AGENT_KEY}}",
   "display_name": "{{TEN_BOT}}",
-  "frontmatter": "Trợ lý chăm sóc khách hàng Zalo của shop mỹ phẩm {{TEN_SHOP}}: tư vấn theo loại da, báo giá, nhận đơn, giải đáp giao hàng và đổi trả.",
+  "frontmatter": "Trợ lý tư vấn bán hàng của {{TEN_SHOP}} ({{NGANH}}): tư vấn chọn sản phẩm, báo giá theo bảng giá, nhận đơn, hướng dẫn thanh toán.",
   "provider": "{{PROVIDER}}",
   "model": "{{MODEL}}",
   "agent_type": "predefined",
   "context_window": 200000,
   "max_tool_iterations": 12,
-  "emoji": "🌸",
+  "emoji": "🛍️",
   "tools_config": {
     "profile": "messaging",
     "deny": ["group:web", "sessions_send", "sessions_list", "sessions_history"]

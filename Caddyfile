@@ -1,0 +1,12 @@
+# Caddy: HTTPS tự động cho tên miền của bot.
+#   https://DOMAIN/web-chat/...  → khung chat website (chat-web, nếu bật; gồm /web-chat/sepay/webhook)
+#   https://DOMAIN/...           → bảng điều khiển BANIClaw
+{$DOMAIN:localhost} {
+	encode gzip
+	handle /web-chat* {
+		reverse_proxy chat-web:8080
+	}
+	handle {
+		reverse_proxy goclaw:18790
+	}
+}

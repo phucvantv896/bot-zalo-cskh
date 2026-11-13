@@ -1,6 +1,9 @@
-# Bot Zalo CSKH — GoClaw (bản gốc công khai) + PostgreSQL có pgvector.
+# BANIClaw — nền tảng trợ lý AI của BANI + PostgreSQL có pgvector.
+# Dịch vụ vẫn tên "goclaw" bên trong (giữ tương thích lệnh cũ).
 # Không sửa tay file này. Mọi thông số nằm trong .env do cai.sh tạo.
 # Có tên miền (DOMAIN trong .env) thì chạy kèm Caddy để có HTTPS: docker compose --profile https up -d
+# TUỲ CHỌN chat-web = khung chat bán hàng nhúng vào website (đường dẫn /web-chat/), dùng chung bot.
+# Chỉ chạy khi bật: CHAT_WEB='1' trong .env (cai.sh/nap-bot.sh tự thêm --profile chat-web).
 
 services:
   postgres:
@@ -19,7 +22,7 @@ services:
     restart: unless-stopped
 
   goclaw:
-    image: ghcr.io/nextlevelbuilder/goclaw:${GOCLAW_IMAGE_TAG:-v3.14.0}
+    image: ${BANICLAW_IMAGE:-ghcr.io/phucvantv896/baniclaw:latest}
     depends_on:
       postgres:
         condition: service_healthy
@@ -29,10 +32,14 @@ services:
       - GOCLAW_HOST=0.0.0.0
       - GOCLAW_PORT=18790
       - GOCLAW_CONFIG=/app/data/config.json
+      # Chủ toàn quyền: "system" (máy cài dùng) + tên đăng nhập của chủ (không dấu)
+      - GOCLAW_OWNER_IDS=system,${CHU_ID:-chu}
       - GOCLAW_GATEWAY_TOKEN=${GOCLAW_GATEWAY_TOKEN:?thiếu GOCLAW_GATEWAY_TOKEN trong .env}
       - GOCLAW_ENCRYPTION_KEY=${GOCLAW_ENCRYPTION_KEY:?thiếu GOCLAW_ENCRYPTION_KEY trong .env}
       - GOCLAW_POSTGRES_DSN=postgres://goclaw:${POSTGRES_PASSWORD}@postgres:5432/goclaw?sslmode=disable
       - GOCLAW_AUTO_UPGRADE=true
+      # BANIClaw: tắt kiểm tra bản mới (cập nhật đi theo gói BANIClaw)
+      - GOCLAW_UPDATE_REPO=${GOCLAW_UPDATE_REPO:-off}
       - GOCLAW_SKILLS_DIR=/app/data/skills
     volumes:
       - goclaw-data:/app/data
@@ -55,6 +62,59 @@ services:
           pids: 200
     restart: unless-stopped
 
+  chat-web:
+    image: node:22-alpine
+    profiles: ["chat-web"]
+    depends_on:
+      - goclaw
+    working_dir: /app
+    command: ["node", "server.js"]
+    ports:
+      - "${GOCLAW_BIND:-0.0.0.0}:${CHAT_WEB_PORT:-18791}:8080"
+    environment:
+      # Trỏ sang BANIClaw khác (vd https://agent.ten-mien.vn) thì đặt CHAT_WEB_GOCLAW_URL trong .env
+      - GOCLAW_URL=${CHAT_WEB_GOCLAW_URL:-http://goclaw:18790}
+      - DATA_DIR=/data
+      - CHAT_WEB_SECRET=${CHAT_WEB_SECRET:-}
+      - CHAT_WEB_ADMIN_PASS=${CHAT_WEB_ADMIN_PASS:-}
+      - CHAT_WEB_ORIGINS=${CHAT_WEB_ORIGINS:-*}
+      - CHAT_WEB_MAU=${CHAT_WEB_MAU:-#D10201}
+      - CHAT_WEB_LOI_CHAO=${CHAT_WEB_LOI_CHAO:-}
+      - CHAT_WEB_GOI_Y=${CHAT_WEB_GOI_Y:-}
+      - CHAT_WEB_AVATAR=${CHAT_WEB_AVATAR:-}
+      - CHAT_WEB_XUNG=${CHAT_WEB_XUNG:-}
+      - CHAT_WEB_GOI_KHACH=${CHAT_WEB_GOI_KHACH:-}
+      - CHAT_WEB_GOI_CHU=${CHAT_WEB_GOI_CHU:-}
+      - CHAT_WEB_GIOI_HAN_PHUT=${CHAT_WEB_GIOI_HAN_PHUT:-12}
+      - CHAT_WEB_GIOI_HAN_NGAY=${CHAT_WEB_GIOI_HAN_NGAY:-300}
+      - CHAT_WEB_ZALO=${CHAT_WEB_ZALO:-}
+      - AGENT_KEY=${AGENT_KEY:-tro-ly}
+      - TEN_SHOP=${TEN_SHOP:-Shop}
+      - TEN_BOT=${TEN_BOT:-}
+      - TEN_CHU=${TEN_CHU:-}
+      - SDT_HOTRO=${SDT_HOTRO:-}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
+      # TUỲ CHỌN thanh toán SePay ngay trong khung chat (SEPAY_STK trống = tắt)
+      - SEPAY_NGAN_HANG=${SEPAY_NGAN_HANG:-}
+      - SEPAY_STK=${SEPAY_STK:-}
+      - SEPAY_TEN_TK=${SEPAY_TEN_TK:-}
+      - SEPAY_MA=${SEPAY_MA:-DH}
+      - SEPAY_WEBHOOK_APIKEY=${SEPAY_WEBHOOK_APIKEY:-}
+    volumes:
+      - ./chat-web:/app:ro
+      - chat-web-data:/data
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    restart: unless-stopped
+
   caddy:
     image: caddy:2.8.4
     profiles: ["https"]
@@ -65,8 +125,8 @@ services:
       - "443:443"
     environment:
       - DOMAIN=${DOMAIN:-}
-    command: caddy reverse-proxy --from ${DOMAIN:-localhost} --to goclaw:18790
     volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
     restart: unless-stopped
 
@@ -74,4 +134,5 @@ volumes:
   postgres-data:
   goclaw-data:
   goclaw-workspace:
+  chat-web-data:
   caddy-data:

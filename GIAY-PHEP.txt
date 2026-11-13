@@ -1,0 +1,15 @@
+BANIClaw — GIẤY PHÉP VÀ GHI CÔNG
+
+BANIClaw do BANI phát triển dựa trên GoClaw:
+  Mã nguồn gốc : GoClaw — https://github.com/nextlevelbuilder/goclaw
+  Bản quyền    : Copyright (c) 2025-2026 GoClaw Contributors
+  Giấy phép    : Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)
+                 https://creativecommons.org/licenses/by-nc/4.0/
+
+BANI đã thay đổi: tên và giao diện (BANIClaw, logo, màu, tiếng Việt mặc định), tắt kiểm tra bản cập nhật
+GoClaw, kiểm tra tên đăng nhập không dấu; thêm bộ cài một lệnh, mẫu trợ lý tiếng Việt, khung chat tư vấn
+website và thanh toán SePay.
+
+CC BY-NC 4.0 cho phép chia sẻ và chỉnh sửa với điều kiện GHI CÔNG tác giả gốc và KHÔNG dùng vào mục đích
+thương mại. BANI tặng bộ cài này miễn phí và không bán phần mềm. Muốn dùng cho mục đích thương mại,
+hãy liên hệ tác giả GoClaw.

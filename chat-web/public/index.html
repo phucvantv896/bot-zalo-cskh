@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Khung chat bán hàng</title>
+<style>
+  :root{--ink:#222;--mu:#666;--ln:#e6e1e3;--bg:#f7f5f6;--m:#D10201}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  main{max-width:720px;margin:0 auto;padding:32px 16px 140px}
+  h1{font-size:26px;margin:0 0 6px}h2{font-size:18px;margin:30px 0 8px}
+  .mu{color:var(--mu)}
+  .card{background:#fff;border:1px solid var(--ln);border-radius:14px;padding:16px 18px;margin:12px 0}
+  pre{background:#1f1d1e;color:#f4eef0;padding:14px;border-radius:10px;overflow-x:auto;font-size:14px;white-space:pre-wrap;word-break:break-all;margin:8px 0}
+  button.chep{border:0;background:var(--m);color:#fff;border-radius:8px;padding:8px 14px;font-size:14px;cursor:pointer}
+  ol{padding-left:22px}li{margin:4px 0}code{background:#f0eaed;padding:1px 5px;border-radius:5px}
+  .canh{border-left:4px solid #e8a33d}
+</style>
+</head>
+<body>
+<main>
+  <h1 id="tieu-de">Khung chat bán hàng</h1>
+  <p class="mu">Đây là trang thử. Bấm nút chat ở góc phải dưới để nói chuyện với bot, giống hệt khách sẽ thấy trên website của shop.</p>
+
+  <h2>Mã nhúng vào website</h2>
+  <div class="card">
+    <p>Dán <b>một dòng</b> này vào cuối trang (trước thẻ <code>&lt;/body&gt;</code>) của website shop:</p>
+    <pre id="ma"></pre>
+    <button class="chep" id="chep">Chép mã</button>
+    <ol>
+      <li><b>WordPress:</b> cài plugin <i>WPCode</i> → Code Snippets → Header &amp; Footer → dán vào ô <i>Footer</i> → Lưu.</li>
+      <li><b>Haravan / Sapo / Shopify:</b> sửa giao diện → tệp <code>theme.liquid</code> → dán ngay trước <code>&lt;/body&gt;</code>.</li>
+      <li><b>WebCake / LadiPage:</b> thêm khối <i>HTML/Mã nhúng</i> hoặc mục <i>Mã chèn cuối trang</i> → dán.</li>
+    </ol>
+    <p class="mu">Đổi màu: thêm <code>data-mau="#c2185b"</code>. Đặt nút sang trái: thêm <code>data-vi-tri="trai"</code>.</p>
+  </div>
+
+  <div class="card canh">
+    <b>Website phải chạy https://</b> và bot phải có tên miền (https) thì khung chat mới hiện trên website thật.
+    Trình duyệt chặn website https tải mã từ địa chỉ http://IP.
+  </div>
+
+  <h2>Đơn hàng từ chat web</h2>
+  <div class="card">
+    Khi khách chốt đơn, bot gửi tin bắt đầu bằng <b>📦 ĐƠN MỚI</b>. Đơn được lưu và xem ở
+    <a id="ql" href="quan-ly">trang quản lý</a> (tên đăng nhập <code>chu</code>, mật khẩu trong file <code>.env</code>).
+    Có cài Telegram thì đơn còn được báo ngay về điện thoại.
+  </div>
+</main>
+<script>
+  var goc = location.origin + location.pathname.replace(/\/web-chat\/.*$/, '');
+  document.getElementById('ma').textContent = '<script src="' + goc + '/web-chat/chat.js" async><\/script>';
+  document.getElementById('chep').onclick = function () {
+    var t = document.getElementById('ma').textContent, b = this;
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () { b.textContent = 'Đã chép ✓'; }, function () { b.textContent = 'Chọn và chép tay giúp em'; });
+  };
+  fetch('api/cau-hinh').then(function (r) { return r.json(); }).then(function (c) {
+    document.getElementById('tieu-de').textContent = 'Khung chat bán hàng · ' + c.ten_shop;
+    document.title = 'Chat · ' + c.ten_shop;
+  }).catch(function () {});
+</script>
+<script src="chat.js" async></script>
+</body>
+</html>
